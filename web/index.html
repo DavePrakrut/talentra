@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Talentra - Enterprise Job Search & Demand Management Platform</title>
+  <meta name="description" content="Unified operational and analytical platform for candidates, corporate employers, and Talentra administrators.">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+  <!-- ========================================================================
+       TOP HEADER
+       ======================================================================== -->
+  <header class="top-header">
+    <div class="brand-container">
+      <div class="brand-logo-mark">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+          <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+          <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+        </svg>
+      </div>
+      <div class="brand-text-block">
+        <span class="brand-title">Talentra</span>
+        <span class="brand-subtitle">Job Search & Demand Management Platform</span>
+      </div>
+    </div>
+
+    <!-- Header Actions (Persona Switcher, Theme Toggle & DB status) -->
+    <div class="header-actions">
+      <!-- Active Persona Switcher Dropdown -->
+      <div id="persona-selector-container" class="persona-container">
+        <span class="persona-label" id="persona-label">Candidate:</span>
+        <select id="active-persona-select" class="persona-select" onchange="onPersonaChanged()">
+          <!-- Populated via JS -->
+        </select>
+      </div>
+
+      <button id="theme-toggle-btn" class="theme-toggle-btn" onclick="toggleTheme()" title="Switch Light/Dark Mode">
+        <svg id="theme-sun-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        <svg id="theme-moon-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        <span id="theme-label">Dark Mode</span>
+      </button>
+
+      <div class="db-status-pill">
+        <span class="status-dot"></span>
+        <span>MySQL 8.0 InnoDB</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       MULTI-PORTAL NAVIGATION BAR (THE 3 PORTALS)
+       ======================================================================== -->
+  <div class="portal-bar">
+    <div class="portal-switch-group">
+      <button class="portal-switch-btn active" data-portal="portal-candidate" onclick="switchPortal('portal-candidate')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        <span>1. Job Seeker & Gig Portal</span>
+      </button>
+      <button class="portal-switch-btn" data-portal="portal-employer" onclick="switchPortal('portal-employer')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+        <span>2. Employer & Recruiter ATS</span>
+      </button>
+      <button class="portal-switch-btn" data-portal="portal-admin" onclick="switchPortal('portal-admin')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        <span>3. Talentra Admin Console</span>
+      </button>
+    </div>
+
+    <!-- Quick Meta Information Badge -->
+    <div id="portal-quick-info">
+      <!-- Dynamically updated -->
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MAIN WRAPPER WITH 3 ISOLATED PORTAL CONTAINERS
+       ======================================================================== -->
+  <main class="main-wrapper">
+
+    <!-- ####################################################################
+         PORTAL 1: JOB SEEKER & GIG WORKER PORTAL
+         #################################################################### -->
+    <section id="portal-candidate" class="portal-container active">
+      <!-- Sub Navigation Tabs for Candidate Portal -->
+      <nav class="nav-tabs" style="margin-bottom: 1.25rem;">
+        <button class="tab-btn active" data-subtab="cand-tab-jobs" onclick="switchCandTab('cand-tab-jobs')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <span>Find Jobs & Apply</span>
+        </button>
+        <button class="tab-btn" data-subtab="cand-tab-applications" onclick="switchCandTab('cand-tab-applications')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          <span>My Applications (<span id="cand-app-count-badge">0</span>)</span>
+        </button>
+        <button class="tab-btn" data-subtab="cand-tab-privacy" onclick="switchCandTab('cand-tab-privacy')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          <span>Candidate Privacy Shield (Blocking)</span>
+        </button>
+        <button class="tab-btn" data-subtab="cand-tab-gigs" onclick="switchCandTab('cand-tab-gigs')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+          <span>Gig Marketplace & Bidding</span>
+        </button>
+        <button class="tab-btn" data-subtab="cand-tab-profile" onclick="switchCandTab('cand-tab-profile')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <span>Profile & Resumes</span>
+        </button>
+      </nav>
+
+      <!-- Subtab 1: Find Jobs & Apply -->
+      <div id="cand-tab-jobs" class="cand-subtab active">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Verified Job Opportunities</h2>
+            <p class="section-desc">Real-time matching against your verified skill profile with instant direct application.</p>
+          </div>
+          <span class="badge badge-emerald" id="cand-jobs-count-badge">Loading jobs ...</span>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar" style="margin-bottom: 1rem;">
+          <div class="form-group" style="flex: 2; min-width: 200px;">
+            <label class="form-label" for="cand-job-search">Search Requisitions</label>
+            <input type="text" id="cand-job-search" class="input-control" placeholder="Search by job title or company ..." oninput="filterCandidateJobs()">
+          </div>
+          <div class="form-group" style="min-width: 170px;">
+            <label class="form-label" for="cand-job-role-filter">Job Role</label>
+            <select id="cand-job-role-filter" class="select-control" onchange="filterCandidateJobs()"><option value="">All Roles</option></select>
+          </div>
+          <div class="form-group" style="min-width: 150px;">
+            <label class="form-label" for="cand-job-city-filter">Location</label>
+            <select id="cand-job-city-filter" class="select-control" onchange="filterCandidateJobs()"><option value="">All Cities</option></select>
+          </div>
+        </div>
+
+        <!-- Job Cards Grid -->
+        <div class="candidate-card-grid" id="cand-jobs-container">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+
+      <!-- Subtab 2: My Applications -->
+      <div id="cand-tab-applications" class="cand-subtab" style="display: none;">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">My Application Status Tracker</h2>
+            <p class="section-desc">Track real-time hiring progress across corporate recruitment pipeline stages.</p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Job Title</th>
+                  <th>Company</th>
+                  <th>City</th>
+                  <th>Salary Range</th>
+                  <th>Match</th>
+                  <th>Status Stage</th>
+                  <th>Applied At</th>
+                  <th>Latest Timeline Note</th>
+                </tr>
+              </thead>
+              <tbody id="cand-applications-tbody">
+                <!-- Rendered via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subtab 3: Candidate Privacy Shield -->
+      <div id="cand-tab-privacy" class="cand-subtab" style="display: none;">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Candidate Privacy Shield (Anti-Harassment)</h2>
+            <p class="section-desc">Block employers or rogue recruiters. Blocked entities are <strong>completely excluded</strong> at the SQL view level and can never see your profile or CV.</p>
+          </div>
+        </div>
+
+        <!-- Active Blocks List -->
+        <div class="panel" style="margin-bottom: 1.25rem;">
+          <div class="panel-header">
+            <div class="panel-title">Your Active Block Rules</div>
+            <span class="badge badge-rose" id="active-blocks-count">0 Active Blocks</span>
+          </div>
+          <div id="active-blocks-container" style="display: flex; flex-direction: column; gap: 0.5rem; padding: 0.5rem 0;">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+
+        <!-- Employers Directory for Quick Blocking -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Block Registered Employers</div>
+            <span class="badge badge-slate">One-Click SQL Anti-Join Enforcement</span>
+          </div>
+          <div class="table-responsive" style="max-height: 450px;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Employer Name</th>
+                  <th>Location</th>
+                  <th>Status</th>
+                  <th>Privacy Protection</th>
+                </tr>
+              </thead>
+              <tbody id="privacy-employers-tbody">
+                <!-- Rendered via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subtab 4: Gig Marketplace -->
+      <div id="cand-tab-gigs" class="cand-subtab" style="display: none;">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">On-Demand Gig Projects</h2>
+            <p class="section-desc">Short-duration, fixed or rate-based project work with external fulfillment handoffs.</p>
+          </div>
+        </div>
+
+        <div class="candidate-card-grid" id="cand-gigs-container">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+
+      <!-- Subtab 5: Profile & Resumes -->
+      <div id="cand-tab-profile" class="cand-subtab" style="display: none;">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Candidate Profile & Credentials</h2>
+            <p class="section-desc">Standardized domains, academic degrees, and test-verified skills.</p>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 1rem;">
+          <div class="panel" id="cand-profile-summary-box">
+            <!-- Rendered via JS -->
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div class="panel">
+              <div class="panel-header">
+                <div class="panel-title">Skills & Test Verifications</div>
+              </div>
+              <div id="cand-skills-badges" style="display: flex; flex-wrap: wrap; gap: 6px; padding: 0.5rem 0;">
+                <!-- Rendered via JS -->
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-header">
+                <div class="panel-title">Resume Versions</div>
+              </div>
+              <div id="cand-resumes-list">
+                <!-- Rendered via JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ####################################################################
+         PORTAL 2: EMPLOYER & RECRUITER ATS PORTAL
+         #################################################################### -->
+    <section id="portal-employer" class="portal-container">
+      <!-- Sub Navigation Tabs for Employer Portal -->
+      <nav class="nav-tabs" style="margin-bottom: 1.25rem;">
+        <button class="tab-btn active" data-subtab="emp-tab-pipeline" onclick="switchEmpTab('emp-tab-pipeline')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+          <span>Requisitions & ATS Pipeline</span>
+        </button>
+        <button class="tab-btn" data-subtab="emp-tab-postjob" onclick="switchEmpTab('emp-tab-postjob')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+          <span>Post Job Requisition</span>
+        </button>
+        <button class="tab-btn" data-subtab="emp-tab-sourcing" onclick="switchEmpTab('emp-tab-sourcing')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          <span>Talent Discovery & Downloads</span>
+        </button>
+        <button class="tab-btn" data-subtab="emp-tab-gigs" onclick="switchEmpTab('emp-tab-gigs')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+          <span>Post Gig Project</span>
+        </button>
+        <button class="tab-btn" data-subtab="emp-tab-wallet" onclick="switchEmpTab('emp-tab-wallet')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+          <span>Wallet & Licences</span>
+        </button>
+      </nav>
+
+      <!-- Subtab 1: Requisitions & ATS Pipeline -->
+      <div id="emp-tab-pipeline" class="emp-subtab active">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Applicant Tracking System (ATS)</h2>
+            <p class="section-desc">Select an active corporate requisition to manage candidate pipeline stages in real time.</p>
+          </div>
+          <button class="btn-primary" onclick="switchEmpTab('emp-tab-postjob')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span>Create Requisition</span>
+          </button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 360px 1fr; gap: 1rem;">
+          <!-- Left: Jobs List -->
+          <div class="panel" style="padding: 0.85rem;">
+            <div style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 0.75rem;">
+              Your Active Requisitions
+            </div>
+            <div id="emp-jobs-list" style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 600px; overflow-y: auto;">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Right: Applicants with Stage Progression Actions -->
+          <div class="panel" style="padding: 0.85rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+              <div>
+                <div style="font-size: 14px; font-weight: 600; color: var(--text-primary);" id="emp-selected-job-title">
+                  Select a job requisition from the left
+                </div>
+                <div style="font-size: 12px; color: var(--text-tertiary);" id="emp-selected-job-meta"></div>
+              </div>
+              <span class="badge badge-slate" id="emp-job-applicants-count">0 Applicants</span>
+            </div>
+
+            <div class="table-responsive" style="max-height: 550px;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Candidate</th>
+                    <th>Experience</th>
+                    <th>Match</th>
+                    <th>Stage Status</th>
+                    <th>Stage Transition Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="emp-applicants-tbody">
+                  <tr><td colspan="5" style="text-align: center; color: var(--text-tertiary);">Select a job to view and advance applicants.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subtab 2: Post Job Requisition -->
+      <div id="emp-tab-postjob" class="emp-subtab" style="display: none;">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Publish Corporate Requisition</h2>
+            <p class="section-desc">Create a validated requisition in <code>job_requirement</code> with salary constraints and required skills.</p>
+          </div>
+        </div>
+
+        <div class="panel" style="max-width: 800px; margin: 0 auto;">
+          <form id="create-job-form" onsubmit="handleCreateJobSubmit(event)">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+              <div class="form-group" style="grid-column: span 2;">
+                <label class="form-label" for="job-title-input">Job Title *</label>
+                <input type="text" id="job-title-input" class="input-control" placeholder="e.g. Lead Platform Infrastructure Architect" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="job-role-select">Job Role Category *</label>
+                <select id="job-role-select" class="select-control" required></select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="job-city-select">Office Location / City *</label>
+                <select id="job-city-select" class="select-control" required></select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="job-positions-input">Headcount Positions Authorized *</label>
+                <input type="number" id="job-positions-input" class="input-control" value="2" min="1" max="100" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="job-work-mode-select">Work Mode</label>
+                <select id="job-work-mode-select" class="select-control"></select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="job-min-salary-input">Minimum Salary (INR)</label>
+                <input type="number" id="job-min-salary-input" class="input-control" value="1800000" step="50000">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="job-max-salary-input">Maximum Salary (INR)</label>
+                <input type="number" id="job-max-salary-input" class="input-control" value="3000000" step="50000">
+              </div>
+
+              <div class="form-group" style="grid-column: span 2;">
+                <label class="form-label" for="job-desc-input">Job Description</label>
+                <textarea id="job-desc-input" class="input-control" rows="4" placeholder="Detail the technical responsibilities and requirements ...">We are seeking a senior technologist to design and optimize scalable distributed services, ensure resilient high-throughput performance, and collaborate across product engineering teams.</textarea>
+              </div>
+
+              <div class="form-group" style="grid-column: span 2;">
+                <label class="form-label">Consultant Openness</label>
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-secondary); cursor: pointer;">
+                  <input type="checkbox" id="job-consultant-open" checked>
+                  <span>Allow verified freelance agency consultants to source candidates for this role</span>
+                </label>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+              <button type="button" class="btn-secondary" onclick="switchEmpTab('emp-tab-pipeline')">Cancel</button>
+              <button type="submit" class="btn-primary" id="btn-submit-job">Publish Requisition</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Subtab 3: Talent Discovery & Resume Download -->
+      <div id="emp-tab-sourcing" class="emp-subtab" style="display: none;">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Candidate Talent Sourcing</h2>
+            <p class="section-desc">Search verified talent. Notice: <strong>Candidates who blocked your company are strictly invisible</strong> via the SQL anti-join probe.</p>
+          </div>
+          <div class="db-status-pill">
+            <span class="status-dot"></span>
+            <span>Wallet: <strong id="emp-sourcing-wallet-balance">...</strong> credits</span>
+          </div>
+        </div>
+
+        <div class="candidate-card-grid" id="emp-candidate-sourcing-container">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+
+      <!-- Subtab 4: Post Gig Project -->
+      <div id="emp-tab-gigs" class="emp-subtab" style="display: none;">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">On-Demand Gig Project Request</h2>
+            <p class="section-desc">Short-duration, sprint-based contracts with external fulfillment integration tokens.</p>
+          </div>
+        </div>
+
+        <div class="panel" style="max-width: 700px; margin: 0 auto;">
+          <form id="create-gig-form" onsubmit="handleCreateGigSubmit(event)">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+              <div class="form-group" style="grid-column: span 2;">
+                <label class="form-label" for="gig-title-input">Project Title *</label>
+                <input type="text" id="gig-title-input" class="input-control" placeholder="e.g. Kubernetes Cluster Security Hardening & Zero-Trust Audit" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="gig-pricing-select">Pricing Model</label>
+                <select id="gig-pricing-select" class="select-control">
+                  <option value="FIXED_PRICE">Fixed Milestone Price</option>
+                  <option value="HOURLY_RATE">Hourly Rate</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="gig-budget-input">Budget (INR) *</label>
+                <input type="number" id="gig-budget-input" class="input-control" value="65000" step="5000" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="gig-start-input">Execution Window Start</label>
+                <input type="date" id="gig-start-input" class="input-control" value="2026-11-01" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="gig-end-input">Execution Window End</label>
+                <input type="date" id="gig-end-input" class="input-control" value="2026-11-15" required>
+              </div>
+
+              <div class="form-group" style="grid-column: span 2;">
+                <label class="form-label" for="gig-desc-input">Scope & Deliverables</label>
+                <textarea id="gig-desc-input" class="input-control" rows="3" placeholder="Define the delivery milestones ...">Implement strict network policy enforcement, rotate TLS secrets, and audit RBAC permissions across production clusters.</textarea>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end;">
+              <button type="submit" class="btn-primary">Publish Gig Request</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Subtab 5: Wallet & Licences -->
+      <div id="emp-tab-wallet" class="emp-subtab" style="display: none;">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Corporate Wallet & Licence Governance</h2>
+            <p class="section-desc">Double-entry append-only credit ledger and SaaS licence device limits (Rule Groups 9 & 10).</p>
+          </div>
+          <button class="btn-primary" onclick="openRechargeModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span>+ Recharge Credits</span>
+          </button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+          <!-- Wallet Balance Card -->
+          <div class="kpi-card">
+            <div class="kpi-top">
+              <span class="kpi-label">Current Credit Balance</span>
+              <span class="kpi-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+              </span>
+            </div>
+            <div class="kpi-value" id="emp-wallet-display-val">₹ ...</div>
+            <div class="kpi-subtext">Append-only double entry ledger</div>
+          </div>
+
+          <!-- Licence Quota Card -->
+          <div class="kpi-card">
+            <div class="kpi-top">
+              <span class="kpi-label">Active Enterprise Licence</span>
+              <span class="badge badge-emerald" id="emp-licence-tier-badge">ENTERPRISE</span>
+            </div>
+            <div class="kpi-value" id="emp-licence-seats-val" style="font-size: 20px;">... Seats / ... Devices per User</div>
+            <div class="kpi-subtext">Enforced at login via <code>sp_authenticate_and_open_session</code></div>
+          </div>
+        </div>
+
+        <!-- Ledger Transactions Table -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Recent Wallet Ledger Transactions</div>
+            <span class="badge badge-slate">Append-Only Immutability</span>
+          </div>
+          <div class="table-responsive" style="max-height: 400px;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Transaction ID</th>
+                  <th>Type</th>
+                  <th>Amount</th>
+                  <th>Balance After</th>
+                  <th>Description</th>
+                  <th>Timestamp</th>
+                </tr>
+              </thead>
+              <tbody id="emp-wallet-transactions-tbody">
+                <!-- Rendered via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ####################################################################
+         PORTAL 3: TALENTRA ADMIN CONSOLE
+         #################################################################### -->
+    <section id="portal-admin" class="portal-container">
+      <!-- Sub Navigation Tabs for Admin Console -->
+      <nav class="nav-tabs" style="margin-bottom: 1.25rem;">
+        <button class="tab-btn active" data-subtab="admin-tab-overview" onclick="switchAdminTab('admin-tab-overview')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          <span>Executive Overview</span>
+        </button>
+        <button class="tab-btn" data-subtab="admin-tab-verification" onclick="switchAdminTab('admin-tab-verification')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          <span>Organisation Verification Desk</span>
+        </button>
+        <button class="tab-btn" data-subtab="admin-tab-sessions" onclick="switchAdminTab('admin-tab-sessions')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+          <span>Security & Session Concurrency</span>
+        </button>
+        <button class="tab-btn" data-subtab="admin-tab-audit" onclick="switchAdminTab('admin-tab-audit')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          <span>Immutable Audit Trail</span>
+        </button>
+        <button class="tab-btn" data-subtab="admin-tab-benchmark" onclick="switchAdminTab('admin-tab-benchmark')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+          <span>12 Core Benchmark Queries</span>
+        </button>
+        <button class="tab-btn" data-subtab="admin-tab-schema" onclick="switchAdminTab('admin-tab-schema')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          <span>Database Schema Catalog</span>
+        </button>
+      </nav>
+
+      <!-- Subtab 1: Executive Overview -->
+      <div id="admin-tab-overview" class="admin-subtab active">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Executive Platform Overview</h2>
+            <p class="section-desc">Live operational telemetry across candidate pools, enterprise requisitions, and financial ledgers.</p>
+          </div>
+          <button class="btn-secondary" onclick="loadKpiData()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+            <span>Refresh Telemetry</span>
+          </button>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-top">
+              <span class="kpi-label">Candidate Pool</span>
+              <span class="kpi-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg></span>
+            </div>
+            <div class="kpi-value" id="kpi-candidates">...</div>
+            <div class="kpi-subtext">Verified job seekers</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-top">
+              <span class="kpi-label">Employers</span>
+              <span class="kpi-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2" ry="2"></rect><path d="M7 2v20"></path><path d="M17 2v20"></path></svg></span>
+            </div>
+            <div class="kpi-value" id="kpi-orgs">...</div>
+            <div class="kpi-subtext">Enterprises & partners</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-top">
+              <span class="kpi-label">Active Requisitions</span>
+              <span class="kpi-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg></span>
+            </div>
+            <div class="kpi-value" id="kpi-jobs">...</div>
+            <div class="kpi-subtext">Open job postings</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-top">
+              <span class="kpi-label">Total Applications</span>
+              <span class="kpi-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg></span>
+            </div>
+            <div class="kpi-value" id="kpi-applications">...</div>
+            <div class="kpi-subtext">In hiring pipeline</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-top">
+              <span class="kpi-label">Total Ledger Volume</span>
+              <span class="kpi-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg></span>
+            </div>
+            <div class="kpi-value" id="kpi-wallet">₹ ...</div>
+            <div class="kpi-subtext">Double-entry ledger</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-top">
+              <span class="kpi-label">Active Gigs</span>
+              <span class="kpi-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg></span>
+            </div>
+            <div class="kpi-value" id="kpi-gigs">...</div>
+            <div class="kpi-subtext">Contract subsystem</div>
+          </div>
+        </div>
+
+        <!-- Funnel Stepper -->
+        <div class="panel" style="margin-bottom: 1.25rem;">
+          <div class="panel-header">
+            <div class="panel-title">Recruitment Conversion Pipeline</div>
+            <span class="badge badge-slate">6 Stages</span>
+          </div>
+          <div class="funnel-stepper">
+            <div class="funnel-step"><div class="funnel-step-name">1. Applied</div><div class="funnel-step-count" id="stage-applied">-</div></div>
+            <div class="funnel-step"><div class="funnel-step-name">2. Shortlisted</div><div class="funnel-step-count" id="stage-shortlisted">-</div></div>
+            <div class="funnel-step"><div class="funnel-step-name">3. Interviewed</div><div class="funnel-step-count" id="stage-interviewed">-</div></div>
+            <div class="funnel-step"><div class="funnel-step-name">4. Offered</div><div class="funnel-step-count" id="stage-offered">-</div></div>
+            <div class="funnel-step"><div class="funnel-step-name">5. Joined</div><div class="funnel-step-count" style="color: var(--success-text);" id="stage-joined">-</div></div>
+            <div class="funnel-step"><div class="funnel-step-name">Rejected</div><div class="funnel-step-count" style="color: var(--danger-text);" id="stage-rejected">-</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subtab 2: Organisation Verification Desk -->
+      <div id="admin-tab-verification" class="admin-subtab" style="display: none;">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Employer Verification & Compliance Desk</h2>
+            <p class="section-desc">Verify corporate identity, tax identifiers (GSTIN/CIN/EIN), and masked tax tokens.</p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Organisation</th>
+                  <th>Legal Name</th>
+                  <th>Masked Tax ID</th>
+                  <th>Status</th>
+                  <th>Wallet Balance</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="admin-orgs-tbody">
+                <!-- Rendered via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subtab 3: Security & Session Concurrency -->
+      <div id="admin-tab-sessions" class="admin-subtab" style="display: none;">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Active Sessions & Hardware Concurrency (Rule Group 9)</h2>
+            <p class="section-desc">Active sessions bounded by licence quotas at login via <code>sp_authenticate_and_open_session</code>.</p>
+          </div>
+          <button class="btn-primary" onclick="testSessionLimit()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            <span>Simulate Concurrency Login Test</span>
+          </button>
+        </div>
+
+        <div class="panel">
+          <div class="table-responsive" style="max-height: 500px;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Session ID</th>
+                  <th>User Email</th>
+                  <th>Device Name</th>
+                  <th>Type</th>
+                  <th>OS / Browser</th>
+                  <th>IP Address</th>
+                  <th>Last Activity</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="admin-sessions-tbody">
+                <!-- Rendered via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subtab 4: Immutable Audit Trail -->
+      <div id="admin-tab-audit" class="admin-subtab" style="display: none;">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Immutable Audit Trail (Rule Group 4)</h2>
+            <p class="section-desc">Append-only security log guarded by triggers blocking UPDATE and DELETE statements.</p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="table-responsive" style="max-height: 550px;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Action Type</th>
+                  <th>Target Entity</th>
+                  <th>Entity ID</th>
+                  <th>Actor ID</th>
+                  <th>IP Address</th>
+                  <th>Timestamp (UTC)</th>
+                </tr>
+              </thead>
+              <tbody id="admin-audit-tbody">
+                <!-- Rendered via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subtab 5: 12 Core Benchmark Queries -->
+      <div id="admin-tab-benchmark" class="admin-subtab" style="display: none;">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">12 Fixed Benchmark Queries & Execution Plan Inspector</h2>
+            <p class="section-desc">Run any of the 12 core workflow queries directly on live MySQL 8.0 to measure latency in real time.</p>
+          </div>
+        </div>
+        <div id="queries-list-container">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+
+      <!-- Subtab 6: Database Schema Catalog -->
+      <div id="admin-tab-schema" class="admin-subtab" style="display: none;">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Database Schema Catalog</h2>
+            <p class="section-desc">All 94 relational tables and views created in <code>talentra_db</code>.</p>
+          </div>
+          <span class="badge badge-emerald" id="schema-table-count">94 Tables / Views</span>
+        </div>
+
+        <div class="panel">
+          <div style="margin-bottom: 0.75rem;">
+            <input type="text" id="schema-search-input" class="input-control" placeholder="Filter tables by name (e.g. candidate, gig, wallet, dim_) ..." style="width: 100%; max-width: 360px;" oninput="filterSchemaTables()">
+          </div>
+          <div class="table-responsive" style="max-height: 550px;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Table Name</th>
+                  <th>Type</th>
+                  <th>Approx Rows</th>
+                  <th>Data Size</th>
+                  <th>Index Size</th>
+                </tr>
+              </thead>
+              <tbody id="schema-tables-tbody">
+                <!-- Rendered via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================================================
+       MODALS FOR INTERACTIVE ACTIONS
+       ======================================================================== -->
+
+  <!-- 1. Apply to Job Modal -->
+  <div id="modal-apply-job" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title" id="apply-modal-title">Apply for Requisition</div>
+        <button class="modal-close-btn" onclick="closeModal('modal-apply-job')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 1rem;" id="apply-modal-desc">
+          Your verified profile and primary resume will be attached to this application.
+        </p>
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="form-label">Attached Resume</label>
+          <div class="input-control" style="background-color: var(--bg-subtle);" id="apply-modal-resume-title">Primary Resume (PDF)</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Candidate Pitch Note</label>
+          <textarea id="apply-modal-note" class="input-control" rows="3" placeholder="Briefly highlight why you are a strong fit for this team ...">I have hands-on experience designing resilient backend systems and microservices that match the required stack.</textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('modal-apply-job')">Cancel</button>
+        <button class="btn-primary" id="btn-confirm-apply" onclick="submitJobApplication()">Submit Application</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Wallet Recharge Modal -->
+  <div id="modal-recharge-wallet" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">Recharge Employer Wallet Credits</div>
+        <button class="modal-close-btn" onclick="closeModal('modal-recharge-wallet')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 1rem;">
+          Purchasing prepaid credits enables resume downloads (10 credits/download) and bulk sourcing outreach campaigns.
+        </p>
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="form-label">Select Package</label>
+          <select id="recharge-package-select" class="select-control">
+            <option value="500">500 Credits - ₹5,000</option>
+            <option value="1500">1,500 Credits - ₹12,500 (15% savings)</option>
+            <option value="5000">5,000 Credits - ₹35,000 (Enterprise tier)</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('modal-recharge-wallet')">Cancel</button>
+        <button class="btn-primary" onclick="submitWalletRecharge()">Confirm Payment & Add Credits</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
